@@ -3,6 +3,7 @@ import re
 
 from os import walk, path, listdir
 
+
 def main():
     # TODO: Reads the config file
     # Format: src:dest:regex
@@ -16,6 +17,7 @@ def main():
 
     # TODO: Move the file if changes
 
+
 # Returns the file path that match any of the rules
 def matcher(sources, rules):
     f = []
@@ -25,6 +27,7 @@ def matcher(sources, rules):
                 f.append(path.join(s, filename))
         # TODO: Future subtrees - for (dirpath, dirnames, filenames) in walk(path.expanduser(s)):
     return f
+
 
 # Inefficient way to attempt to match against multiple patterns
 def multimatch(word, patterns):
