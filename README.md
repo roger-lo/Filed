@@ -2,7 +2,10 @@
 Filed is a filing daemon that watches a folder moves files according to regex rules.
 
 ## Installation
-TBD
+`make init`
+
+## Testing
+`make test`
 
 ## Setup
 Edit `~/.config/filed/rules.conf` to specify rules for filed to follow.
