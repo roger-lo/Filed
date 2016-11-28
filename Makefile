@@ -4,4 +4,5 @@ init:
 	pip install -r requirements.txt
 
 test:
-	pytest
+	# pytest doesn't play nice with travis.
+	py.test
