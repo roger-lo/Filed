@@ -5,17 +5,18 @@ from os import walk, path, listdir
 
 
 def main():
-    # TODO: Reads the config file
-    # Format: src:dest:regex
+    # TODO: Reads the config file.
+    # Format: As specified in Issue #5.
+
     sources = []
-    sources.append("~/Workspace/filed/test/")
+    sources.append("~/Workspace/filed/tests/")
     patterns = [".*\.pdf"]
 
     # Monitor folder for changes
     matches = matcher(sources, patterns)
     print(matches)
 
-    # TODO: Move the file if changes
+    # TODO: Move the file if changes.
 
 
 # Returns the file path that match any of the rules
