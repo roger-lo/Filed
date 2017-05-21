@@ -20,7 +20,6 @@ def parse_config_file(fd):
     rules = []
 
     for num, line in enumerate(fd):
-
         line = line.strip()
 
         # Skip comments
@@ -43,7 +42,6 @@ def parse_config_file(fd):
             logging.warning(
                 "{}:{}: {} is not a directory"
                 .format(filename, num, r.src))
-
 
         if not path.isdir(r.dst):
             logging.warning(
