@@ -4,11 +4,14 @@ import re
 
 from os import walk, path, listdir
 
+from predicates.predicate import *
+from actions.action import *
+
 
 class Rule(object):
     src = None
-    dst = None
-    reg = None
+    predicates = None
+    actions = None
 
 
 def parse_config_file(fd):
@@ -16,44 +19,39 @@ def parse_config_file(fd):
     validates all the configurations, therefore the return value should be safe
     and usable.
     """
-
     rules = []
 
     for num, line in enumerate(fd):
         line = line.strip()
 
         # Skip comments
-        if line.startswith('#'):
+        if line.startswith('#') or not len(line) > 1:
             continue
 
-        # Format of the line is src:dst:regexpression
+        # See resource/filedrc for example format
         parts = line.split(':')
         if len(parts) != 3:
-            logging.warning("{}:{}: Error reading line".format(filename, num))
+            logging.warning("{}:{}: Error reading line".format(line, num))
             continue
 
         # Validate the parts of the config
         r = Rule()
         r.src = path.expanduser(parts[0])
-        r.dst = path.expanduser(parts[1])
-        r.reg = parts[2]
+
+        try:
+            # TODO: Bad things will happen if pipe symbol inside the function
+            # TODO: Avoid using eval()
+            r.predicates = list(map(eval, parts[1].split('|')))
+            r.actions = list(map(eval, parts[2].split('|')))
+        except RuntimeError:
+            # TODO: Doing proper exceptions.
+            logging.warning("Something went wrong")
+            continue
 
         if not path.isdir(r.src):
             logging.warning(
                 "{}:{}: {} is not a directory"
-                .format(filename, num, r.src))
-
-        if not path.isdir(r.dst):
-            logging.warning(
-                "{}:{}: {} is not a directory"
-                .format(filename, num, r.dst))
-
-        try:
-            re.compile(r.reg)
-        except Exception as e:
-            logging.warning(
-                "{}:{}: error parsing regex: {}"
-                .format(filename, num, str(e)))
+                .format(line, num, r.src))
 
         rules.append(r)
 
@@ -82,7 +80,7 @@ def load_config_file(filename):
 
 def main():
     config_files = [
-        '~/.filedrc'
+        path.join(path.dirname(__file__), 'resource/filedrc')
     ]
 
     rules = {}
@@ -92,20 +90,16 @@ def main():
     # Monitor folder for changes
     for filename, rules in rules.items():
         for rule in rules:
-            matches = matcher(rule.src, rule.reg)
-            print(matches)
+            files = listdir(path.expanduser(rule.src))
 
-    # TODO: Move the file if changes
+            for predicate in rule.predicates:
+                files = filter(predicate.match, files)
 
+            for action in rule.actions:
+                files = map(action.process, files)
 
-# Returns the file path that match any of the rules
-def matcher(source, rule):
-    f = []
-    for filename in listdir(path.expanduser(source)):
-        if re.match(rule, filename):
-            f.append(path.join(source, filename))
-    # TODO: Future subtrees - for (dirpath, dirnames, filenames) in walk(path.expanduser(s)):
-    return f
+            # Because map and filters are lazy function. This is needed to execute map and filters
+            list(files)
 
 if __name__ == "__main__":
     main()
