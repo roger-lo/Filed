@@ -1,0 +1,7 @@
+# Filed example config
+# src:predicates:actions
+# predicates = predicate1() | predicate2() | ...
+# actions = action1() | action2() | ...
+
+# Moves all *.pdf files into ~/documents
+~/downloads/:RegexPredicate(".*\.pdf"):MoveAction("~/documents/")
